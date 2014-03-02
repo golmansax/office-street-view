@@ -18,10 +18,12 @@
 
     "my-sass-core": "golmansax/my-sass-core",
 
-    "requirejs": "latest",
-    "requirejs-domready": "latest",
     "angular": "latest",
     "angular-mocks": "latest",
-    "angular-bindonce": "latest"
+    "angular-bindonce": "latest",
+    "angular-recompile": "golmansax/angular-recompile",
+    "requirejs": "latest",
+    "requirejs-domready": "latest",
+    "routie": "latest"
   }
 }

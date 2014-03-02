@@ -14,13 +14,11 @@ define(['./module'], function(services) {
 
     from_server.Get = function(key) {
       if (_used_vars.hasOwnProperty(key)) {
-        console.error('Using from_server key (' + key + ') more than once');
-        return;
+        throw 'Using from_server key (' + key + ') more than once';
       }
 
       if (!_js_vars_from_server.hasOwnProperty(key)) {
-        console.error('Key (' + key + ') does not exist on from_server vars');
-        return;
+        throw 'Key (' + key + ') does not exist on from_server vars';
       }
 
       // Grab the val and delete it from the map

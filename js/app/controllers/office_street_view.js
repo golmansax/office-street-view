@@ -2,24 +2,19 @@ define(['angular', './module'], function(angular, controllers) {
   'use strict';
 
   controllers.controller('OfficeStreetViewCtrl', [
-    '$scope', '$timeout', 'from_server', _OfficeStreetViewCtrl
+    '$document', '$q', '$scope', '$timeout', 'People',
+    'from_server', 'routie', _OfficeStreetViewCtrl
   ]);
 
   return;
 
   /*** Controller defined below ***/
 
-  function _OfficeStreetViewCtrl($scope, $timeout, from_server) {
-    // Constants
-    var IMG_PATH = 'https://s3.amazonaws.com/photos.room77/team/',
-        COUNTRY_MAP_URL = [
-          'https://chart.googleapis.com/chart?cht=map:fixed=-60,-170,85,180&',
-          'chs=340x250&chco=333333|006400&chld='].join(''),
-        PORTRAIT_URL = [
-          'https://s3.amazonaws.com/photos.room77/team/',
-          'portraits/portrait_'].join('');
+  function _OfficeStreetViewCtrl($document, $q, $scope, $timeout, People,
+      from_server, routie) {
 
     var KEY_CODE_MAP = {
+      /* jshint ignore:start */
       37: 'W', 38: 'N', 39: 'E', 40: 'S',         // arrow keys
 
       72: 'W', 74: 'S', 75: 'N', 76: 'E',         // vim nav
@@ -28,7 +23,12 @@ define(['angular', './module'], function(angular, controllers) {
       97: 'SW', 99: 'SE', 103: 'NW', 105: 'NE',
 
       65: 'W', 68: 'E', 83: 'S', 87: 'N'          // gamer keypad
+      /* jshint ignore:end */
     };
+
+    // Constants
+    var IMG_PATH = 'https://s3.amazonaws.com/photos.room77/team/';
+
     var DIR_NAME_ARR = [ 'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW' ];
     var DIR_INDEX_MAP = {}; // this will map dir to index ('N' => -1)
 
@@ -52,55 +52,25 @@ define(['angular', './module'], function(angular, controllers) {
     };
 
     // Set by from_server
-    var BIO_MAP = null,
-        FILTER_MAP = null,
+    var FILTER_MAP = null,
         LOC_TYPES = null,
         MIN_PT = null,
         MAX_PT = null;
 
-    // No picture
-    var BLOCKED = {
-      Dd: true
-    };
-
     var _cur = { pt: null, dir: null },
         _cached = { people: [], meet_map: {}, filter_map: {}, query: '' },
-        _people = [];
+        _main_image_deferred = null;
 
     _ResetScope();
+    _BindKeydown();
 
     $scope.Init = function() {
-      // Index is used a lot in this function
-      var i;
-
       _InitFromServer();
 
       // let's create the DIR_INDEX_MAP
-      for (i = 0; i < 8; i++) DIR_INDEX_MAP[DIR_NAME_ARR[i]] = i;
+      for (var i = 0; i < 8; i++) DIR_INDEX_MAP[DIR_NAME_ARR[i]] = i;
 
-      // Add portraits and initialize $scope.people
-      for (var key in BIO_MAP) {
-        if (BLOCKED.hasOwnProperty(key)) {
-          delete BIO_MAP[key];
-          continue;
-        }
-
-        var bio = BIO_MAP[key];
-
-        bio.key = key;
-        bio.img = PORTRAIT_URL + bio.key + '.png';
-
-        bio.countries.push('US'); // Everyone has been to us
-        bio.countries_url = COUNTRY_MAP_URL + 'US';
-        for (i = 0; i < bio.countries.length; i++) {
-          bio.countries_url += '|' + bio.countries[i];
-        }
-
-        bio.filter_map = {};
-        for (i = 0; i < bio.filters.length; i++) {
-          bio.filter_map[bio.filters[i]] = true;
-        }
-
+      People.InitPts(function(bio) {
         if (bio.pts.length > 0) {
           var pt = bio.pts[0];    // Only need one point for direct lookup
           for (i = 0; i < 8; i++) {
@@ -116,95 +86,72 @@ define(['angular', './module'], function(angular, controllers) {
             }
           }
         }
+      });
 
-        _people.push(bio);
-      }
-      _people = _ShuffleArray(_people);
-      _cached.people = _people;
+      _cached.people = People.All();
 
       // Initializing filters
       $scope.filters = [];
-      for (var filter_key in FILTER_MAP) {
+      angular.forEach(FILTER_MAP, function(filter, filter_key) {
         $scope.filters.push({
-          key: filter_key, name: FILTER_MAP[filter_key], applied: false
+          key: filter_key,
+          name: filter,
+          applied: false
         });
-      }
+      });
 
       _cur.pt = [6, 9];
       _cur.dir = 'W';
 
-      // bind keystrokes
-      /* TODO @holman put back in
-      $('body').on('keydown', function(e) {
-        if ($scope.splash_open) return;
-        if (e.ctrlKey) return;
-
-        if (e.keyCode in KEY_CODE_MAP) {
-          e.preventDefault();
-
-          var new_dir = KEY_CODE_MAP[e.keyCode],
-              new_index = (DIR_INDEX_MAP[_cur.dir] + DIR_INDEX_MAP[new_dir]) % 8;
-
-          $scope.$apply(function() {
-            if (new_dir === 'N') {
-              // Try until you cant
-              var new_pt = _Move(_cur.pt, DIR_DIFF[new_index]);
-              var type = null;
-              while (_IsValidPt(new_pt)) {
-                type = _GetLocType(new_pt);
-
-                if (type === 'loc') {
-                  _cur.pt = new_pt;
-                  _UpdateDisplay();
-                  break;
-                }
-                new_pt = _Move(new_pt, DIR_DIFF[new_index]);
-              }
-            }
-            else {
-              _cur.dir = DIR_NAME_ARR[new_index];
-              _UpdateDisplay();
-            }
-          });
-        }
-      });
-      */
-
       // We don't display surroundings until after the splash screen
       //  has been closed
       _DisplayMainImg();
+
+      routie.When('people/:key', function(new_key) {
+        if (new_key) $scope.Meet(People.Find(new_key));
+      });
+
+      routie.When('office', function() {
+        if (!$scope.bio) return;
+
+        var dir_idx = (DIR_INDEX_MAP[_cur.dir] + 4) % 8;
+        _cur.pt = _Move(_cur.pt, DIR_DIFF[dir_idx]);
+        _cur.dir = $scope.bio.prev_dir;
+
+        _UpdateDisplay().then(function() {
+          $scope.bio = null;
+        });
+      });
+    };
+
+    $scope.OnMainImgLoad = function() {
+      if (_main_image_deferred) _main_image_deferred.resolve();
+    };
+
+    $scope.Back = function() {
+      routie.ToDefault();
     };
 
     $scope.Meet = function(person) {
       if (person.pts.length <= 0) {
         alert('Not in view yet!');
+        routie.ToDefault();
         return;
       }
 
       if ($scope.splash_open) $scope.CloseSplash();
-      if ($scope.bio && $scope.bio.key == person.key) return;
+      if ($scope.bio && $scope.bio.key === person.key) return;
 
       $scope.filters_open = false;
 
       _cur.pt = person.pt;
       _cur.dir = person.dir;
 
-      $scope.bio = person;
 
-      _UpdateDisplay();
-      $scope.meet = [person];
-    };
-
-    $scope.Back = function() {
-      if (!$scope.bio) return;
-
-      var dir_idx = (DIR_INDEX_MAP[_cur.dir] + 4) % 8;
-      _cur.pt = _Move(_cur.pt, DIR_DIFF[dir_idx]);
-      _cur.dir = $scope.bio.prev_dir;
-
-      _UpdateDisplay();
-
-      $scope.bio = null;
+      _UpdateDisplay().then(function() {
+        $scope.bio = person;
+        $scope.meet = [person];
+      });
     };
 
     $scope.FilterPeopleAndPrioritizeMeet = function() {
@@ -215,9 +162,9 @@ define(['angular', './module'], function(angular, controllers) {
       var meet_map = {},
           redo = false;
 
-      for (var dir in $scope.meet) {
-        meet_map[$scope.meet[dir].key] = true;
-      }
+      angular.forEach($scope.meet, function(person) {
+        meet_map[person.key] = true;
+      });
       if (!angular.equals(meet_map, _cached.meet_map)) {
         redo = true;
         _cached.meet_map = meet_map;
@@ -240,10 +187,11 @@ define(['angular', './module'], function(angular, controllers) {
       if (!redo) return _cached.people;
 
       var meet_people = [],
-          non_meet_people = [];
+          non_meet_people = [],
+          people = People.All();
 
-      for (i = 0; i < _people.length; i++) {
-        var person = _people[i];
+      for (i = 0; i < people.length; i++) {
+        var person = people[i];
 
         if (!$scope.FitsFilter(person)) continue;
 
@@ -314,11 +262,7 @@ define(['angular', './module'], function(angular, controllers) {
       if ($scope.qu.ery && $scope.qu.ery !== '') {
         var query = $scope.qu.ery.toLowerCase();
 
-        if (person.name.toLowerCase().indexOf(query) < 0 &&
-            // Hack for Nick
-            !(person.short_name === 'Nick' && $scope.qu.ery === 'Nick')) {
-          return false;
-        }
+        if (person.short_name.toLowerCase().indexOf(query) < 0) return false;
       }
 
       return true;
@@ -342,20 +286,29 @@ define(['angular', './module'], function(angular, controllers) {
       else return true;
     };
 
+    $scope.QueryFocus = function() {
+      $scope.focused_on_query = true;
+    };
+
+    $scope.QueryBlur = function() {
+      $scope.focused_on_query = false;
+    };
+
     return;
 
     function _ResetScope() {
       $scope.splash_open = true;
+      $scope.focused_on_query = false;
 
       $scope.main_img = '';
-      $scope.backup_img = null;
+      $scope.backup_img = undefined;
       $scope.meet = {};
-      $scope.bio = null;
+      $scope.bio = undefined;
       $scope.qu = { ery: '' }; // Why angular do you torture me?
       $scope.portraits_margin = 0;
       $scope.portrait_width = 101;
 
-      $scope.filters = null;
+      $scope.filters = undefined;
       $scope.applied_filters = [];
     }
 
@@ -371,8 +324,8 @@ define(['angular', './module'], function(angular, controllers) {
     }
 
     function _UpdateDisplay() {
-      _DisplayMainImg();
-      _DisplaySurroundings();
+      var promise = _DisplayMainImg();
+      return promise.then(_DisplaySurroundings);
     }
 
     function _DisplayMainImg() {
@@ -381,14 +334,26 @@ define(['angular', './module'], function(angular, controllers) {
 
       var img_src = IMG_PATH;
       if (type === 'loc' || type === 'start') {
-        img_src += 'loc_' + _cur.pt[0] + '_' + _cur.pt[1] + '_' + _cur.dir + '.jpg';
+        img_src += 'loc_' + _cur.pt[0] + '_' + _cur.pt[1] + '_' + _cur.dir +
+          '.jpg';
       }
 
       // This is when the pt is a person
       else img_src += type + '.jpg';
 
+      // Wait for image to load
+      var deferred = $q.defer();
+      _main_image_deferred = deferred;
+
+      // If it's the same image, just immediately resolve this promise
+      if ($scope.main_img === img_src) {
+        $timeout(function() { _main_image_deferred.resolve(); });
+      }
+
       $scope.main_img = img_src;
       if (!$scope.backup_img) $scope.backup_img = img_src;
+
+      return deferred.promise;
     }
 
     function _Move(pt, offset) {
@@ -418,7 +383,7 @@ define(['angular', './module'], function(angular, controllers) {
         // object to visit
         if (cur_type !== 'start' && tmp.type && tmp.type !== 'loc' &&
             tmp.type !== 'start' && tmp.dir !== 'S') {
-          var bio = BIO_MAP[tmp.type];
+          var bio = People.Find(tmp.type);
 
           $scope.meet[tmp.dir] = bio;
         }
@@ -471,36 +436,51 @@ define(['angular', './module'], function(angular, controllers) {
       }
     }
 
-    // From stack overflow: http://stackoverflow.com/questions/2450954/how-to-randomize-a-javascript-array
-    function _ShuffleArray(array) {
-      var currentIndex = array.length,
-          temporaryValue,
-          randomIndex;
-
-      // While there remain elements to shuffle...
-      while (0 !== currentIndex) {
-
-        // Pick a remaining element...
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-
-        // And swap it with the current element.
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
-      }
-
-      return array;
-    }
-
     function _InitFromServer() {
       var vars = from_server.Get('vars');
 
-      BIO_MAP = vars.bio_map;
       FILTER_MAP = vars.filter_map;
       LOC_TYPES = vars.loc_types;
       MAX_PT = vars.max_pt;
       MIN_PT = vars.min_pt;
+    }
+
+    function _BindKeydown() {
+      // Bind keystrokes
+      $document.on('keydown', function(e) {
+        if ($scope.focused_on_query || $scope.splash_open) return;
+        if (e.ctrlKey) return;
+
+        if (e.keyCode in KEY_CODE_MAP) {
+          e.preventDefault();
+
+          var new_dir = KEY_CODE_MAP[e.keyCode];
+          var new_index = (DIR_INDEX_MAP[_cur.dir] +
+            DIR_INDEX_MAP[new_dir]) % 8;
+
+          $scope.$apply(function() {
+            if (new_dir === 'N') {
+              // Try until you cant
+              var new_pt = _Move(_cur.pt, DIR_DIFF[new_index]);
+              var type = null;
+              while (_IsValidPt(new_pt)) {
+                type = _GetLocType(new_pt);
+
+                if (type === 'loc') {
+                  _cur.pt = new_pt;
+                  _UpdateDisplay();
+                  break;
+                }
+                new_pt = _Move(new_pt, DIR_DIFF[new_index]);
+              }
+            }
+            else {
+              _cur.dir = DIR_NAME_ARR[new_index];
+              _UpdateDisplay();
+            }
+          });
+        }
+      });
     }
   }
 });

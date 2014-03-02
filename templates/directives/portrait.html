@@ -1,0 +1,6 @@
+<div class="person" ng-class="{ active: person.in_view }" bindonce="person"
+    nav-to-person="person">
+  <img bo-src="person.img">
+  <div bo-text="person.short_name"></div>
+  <div class="arrow" ng-show="person.in_view"></div>
+</div>

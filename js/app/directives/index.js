@@ -3,5 +3,4 @@
  * Index file for directivesthat needed to be included in app
  */
 
-// TODO remove ./module when an actual directives is included
-define(['./module'], function() {});
+define(['./container', './main_img', './nav', './portrait'], function() {});

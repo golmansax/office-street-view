@@ -3,6 +3,9 @@
 
   module.exports = {
     src: ['Gruntfile.js', 'js/**/*.js', 'tasks/**/*.js'],
-    jshintrc: '.jshintrc'
+
+    options: {
+      jshintrc: true
+    }
   };
 })();

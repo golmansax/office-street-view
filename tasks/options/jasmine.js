@@ -2,7 +2,7 @@
   'use strict';
 
   module.exports = {
-    src: ['static/assets/**/*.js'],
+    src: ['dist/assets/**/*.js'],
     options: {
       // Use this for debugging
       keepRunner: true,
