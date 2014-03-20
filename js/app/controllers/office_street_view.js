@@ -453,32 +453,33 @@ define(['angular', './module'], function(angular, controllers) {
 
         if (e.keyCode in KEY_CODE_MAP) {
           e.preventDefault();
+          _MoveInDir(KEY_CODE_MAP[e.keyCode]);
+        }
+      });
+    }
 
-          var new_dir = KEY_CODE_MAP[e.keyCode];
-          var new_index = (DIR_INDEX_MAP[_cur.dir] +
-            DIR_INDEX_MAP[new_dir]) % 8;
+    function _MoveInDir(new_dir) {
+      var new_index = (DIR_INDEX_MAP[_cur.dir] + DIR_INDEX_MAP[new_dir]) % 8;
 
-          $scope.$apply(function() {
-            if (new_dir === 'N') {
-              // Try until you cant
-              var new_pt = _Move(_cur.pt, DIR_DIFF[new_index]);
-              var type = null;
-              while (_IsValidPt(new_pt)) {
-                type = _GetLocType(new_pt);
+      $scope.$apply(function() {
+        if (new_dir === 'N') {
+          // Try until you cant
+          var new_pt = _Move(_cur.pt, DIR_DIFF[new_index]);
+          var type = null;
+          while (_IsValidPt(new_pt)) {
+            type = _GetLocType(new_pt);
 
-                if (type === 'loc') {
-                  _cur.pt = new_pt;
-                  _UpdateDisplay();
-                  break;
-                }
-                new_pt = _Move(new_pt, DIR_DIFF[new_index]);
-              }
-            }
-            else {
-              _cur.dir = DIR_NAME_ARR[new_index];
+            if (type === 'loc') {
+              _cur.pt = new_pt;
               _UpdateDisplay();
+              break;
             }
-          });
+            new_pt = _Move(new_pt, DIR_DIFF[new_index]);
+          }
+        }
+        else {
+          _cur.dir = DIR_NAME_ARR[new_index];
+          _UpdateDisplay();
         }
       });
     }
