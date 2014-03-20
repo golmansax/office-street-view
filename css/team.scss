@@ -1,4 +1,5 @@
-@import 'my-sass-core/core';
+@import 'lib/my-sass-core/core';
+@import 'CSS:lib/animate.css/animate';
 @import 'webscss/team/core';
 @import 'webscss/team/animate';
 @import 'webscss/team/zindex';
@@ -118,11 +119,11 @@ $common_shadow: 0 0 7px #666;
 $slide_duration: .5s;
 $flip_duration: 1s;
 
-@mixin add_vendors($param, $param2, $vendors) {
-}
-
 .flipInY, .flipOutY {
-  @include add_vendors(animation-duration, $flip_duration, (webkit, moz, o, ''));
+  animation-duration: $flip_duration;
+  -webkit-animation-duration: $flip_duration;
+  -moz-animation-duration: $flip_duration;
+  -o-animation-duration: $flip_duration;
 }
 
 $main_img_width: 600px;

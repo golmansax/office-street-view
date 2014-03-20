@@ -8,7 +8,8 @@ define(['angular', '../module'], function(angular, services) {
   function _People(from_server) {
     var me = {},
         BIO_MAP = {},
-        _people = [];
+        _people = [],
+        US_CODE = 'US';
 
     _Init();
 
@@ -60,8 +61,8 @@ define(['angular', '../module'], function(angular, services) {
         bio.key = key;
         bio.img = PORTRAIT_URL + bio.key + '.png';
 
-        bio.countries.push('US'); // Everyone has been to us
-        bio.countries_url = COUNTRY_MAP_URL + 'US';
+        bio.countries.push(US_CODE); // Everyone has been to US
+        bio.countries_url = COUNTRY_MAP_URL + US_CODE;
         for (i = 0; i < bio.countries.length; i++) {
           bio.countries_url += '|' + bio.countries[i];
         }

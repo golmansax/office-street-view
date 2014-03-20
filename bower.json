@@ -16,6 +16,7 @@
   "dependencies": {
     "Twig": "fabpot/Twig",
 
+    "animate.css": "latest",
     "my-sass-core": "golmansax/my-sass-core",
 
     "angular": "latest",

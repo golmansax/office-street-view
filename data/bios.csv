@@ -1,5 +1,5 @@
 People||||||||||||
-Abbr|Full Name|Name to be Called|PosX|PosY|Title|Languages (in order of learning)|Countries Visited (outside US)|Eng Fav Language|Eng Fav Editor|Filters|Quote|Detailed Info
+Abbreviation|Full Name|Name to be Called|PosX|PosY|Title|Languages (in order of learning)|Countries Visited (outside US)|Eng Fav Language|Eng Fav Editor|Filters|Quote|Detailed Info
 Ad|Adrienne DiPalma|Adrienne|||CSS Jedi|eng|MX, CA, IE, ES, PT, GB|PHP|NetBeans|eng|Ugh, another merge conflict.|
 Al|Alexa Herasimchuk|Alexa|||Design Intern|eng|MX, AW|||product,baller|Gosh, everyone here sucks at basketball.|
 Am|Amber Terrell|Amber|5|5|Manager of Customer Care and Partner Relations|eng|MX,PH|||business,chef||
@@ -35,7 +35,7 @@ Vi|Vishal Kasera|Vishal|2|7|Master of Deals|eng|IN|??|??|eng||
 Yu|Yu-chi Kuo|Yu-chi|||Software Engineer Intern|cmn, eng|TW, CN, JP, KR, SG, HK|Python|Vim|eng,baller||
 ||||||||||||
 Languages||||Countries||||||||
-Abbr|Name|||Abbr|Europe|Abbr|Asia|Abbr|Others|||
+Abbreviation|Name|||Abbreviation|Europe|Abbreviation|Asia|Abbreviation|Others|||
 eng|English|||DE|Germany|CN|China|DO|Dominican Republic|||
 spa|Spanish|||FR|France|RU|Russia|GT|Guatemala|||
 cmn|Mandarin|||CH|Switzerland|KR|South Korea|UG|Uganda|||
@@ -53,7 +53,7 @@ hin|Hindi|||PT|Portugal|||KE|Kenya|||
 ||||PL|Poland|||IL|Israel|||
 ||||IE|Ireland|||CR|Costa Rica|||
 Filters||||HU|Hungary|||AR|Argentina|||
-Abbr|Name|||BY|Belarus|||BR|Brazil|||
+Abbreviation|Name|||BY|Belarus|||BR|Brazil|||
 business|Business Team|||MC|Monaco|||PE|Peru|||
 eng|Engineering Team|||VA|Vatican City State|||KY|Cayman Islands|||
 mktg|Marketing Team|||AT|Austria|||VG|Virgin Islands (British)|||

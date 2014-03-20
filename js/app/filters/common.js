@@ -20,5 +20,9 @@ define(['angular', './module'], function(angular, filters) {
     return function(lang) {
       return LANG_MAP.hasOwnProperty(lang) ? LANG_MAP[lang] : lang;
     };
-  }]);
+  }]).filter('append_px', function() {
+    return function(num) {
+      return num + 'px';
+    };
+  });
 });

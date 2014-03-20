@@ -13,11 +13,11 @@
               ng-show="ShowPortraitsBack()"></div>
         </div>
         <div id="portraits">
-          <div ng-style="{ 'margin-left': portraits_margin + 'px' }"
+          <div ng-style="{ 'margin-left': (portraits_margin|append_px) }"
               class="people_wrapper">
             <div class="person_wrapper"
                 osv-portrait
-                ng-style="{ left: $index * portrait_width + 'px' }"
+                ng-style="{ left: (($index * portrait_width)|append_px) }"
                 ng-animate="{ enter: 'flipInY', leave: 'fade_out' }"
                 ng-repeat="person in FilterPeopleAndPrioritizeMeet() track by person.key">
             </div>
@@ -94,7 +94,7 @@
             <h2 bo-text="bio.name"></h2>
             <h4 bo-text="bio.role"></h4>
 
-            <div bo-show="bio.eng.lang" class="eng">
+            <div bo-show="bio.eng.lang && bio.eng.editor" class="eng">
               <strong>Favorite coding setup:</strong>
               <span bo-text="bio.eng.lang"></span>
               in
@@ -160,8 +160,7 @@
 
       {# Things that start behind the main_section and slide out #}
       <div id="behind_main">
-        <div id="filters" ng-class="{ open: filters_open }"
-            recompile-once-when="filters" recompile-html>
+        <div id="filters" ng-class="{ open: filters_open }">
           <div ng-repeat="filter in filters" bindonce
               ng-class="{ applied: filter.applied }"
               bo-text="filter.name" ng-click="ToggleFilter(filter)">
