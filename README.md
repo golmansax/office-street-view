@@ -1,6 +1,6 @@
 Office Street View
 ==================
-A cool team pages that lets you explore the office and the awesome people that work there.  Created in a Room 77 hackathon.
+A cool company team-page that lets you explore the office and the awesome people that work there.  Created in a Room 77 hackathon.
 
 Run `grunt server:dev` to get a local version running on port 8000.
 Grunt compiles the repo into the `dist/` directory.
