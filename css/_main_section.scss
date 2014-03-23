@@ -3,7 +3,7 @@
   display: inline-block;
   position: relative;
 
-  @include shadow($common_shadow);
+  @include box-shadow($common_shadow);
 }
 
 #splash_screen {
@@ -119,7 +119,7 @@ $header_padding: 5px;
       padding: 0 5px 1px;
       position: absolute;
 
-      @include rounded(12px);
+      @include border-radius(12px, 12px);
 
       &:hover {
         background-color: $from-btn-secondary;
@@ -147,7 +147,7 @@ $header_padding: 5px;
       background-color: $gray;
       padding: 0 5px 1px;
 
-      @include rounded(12px);
+      @include border-radius(12px, 12px);
     }
 
     &:hover {
@@ -291,7 +291,7 @@ $filters_width: ($site_width - $main_img_width) / 2 - $filters_padding;
   & > div {
     @include blue_btn();
     border-bottom: 3px $wht solid;
-    padding: 9px 15px;
+    padding: 8px 15px;
     font-size: $med_txt;
     text-align: left;
 
@@ -317,9 +317,10 @@ $meet_text_padding: 10px;
   top: 190px;
   left: 0px;
   z-index: $btn_zidx;
+  border-collapse: separate;
 
   td {
-    padding: 10px;
+    padding: 10px 20px;
     height: $meet_text_height;
     width: ($main_img_width) / 3;
   }

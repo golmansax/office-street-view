@@ -1,1 +1,4 @@
-define(function() { return 'office-street-view'; });
+define(function() {
+  'use strict';
+  return 'osv';
+});

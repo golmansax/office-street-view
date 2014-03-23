@@ -1,4 +1,5 @@
 <?php
+
 /* @author holman
  *
  */
@@ -24,7 +25,7 @@ $max_pt = null;
 $pts = array();
 
 // lets read in the bios, and make a map
-$fin = fopen('data/bios_new.csv', 'r');
+$fin = fopen('data/bios.csv', 'r');
 $cat_actions = array(
   'People' => function(&$info) use (&$bio_map, &$min_pt, &$max_pt) {
     $my_pts = array();
@@ -128,7 +129,6 @@ twig\Render('app.html',
     ),
     'JS_VARS_FROM_SERVER_JSON' => json_encode(array(
       'vars' => array(
-        'bio_map' => $bio_map,
         'filter_map' => $filter_map,
         'min_pt' => $min_pt,
         'max_pt' => $max_pt,
@@ -136,11 +136,10 @@ twig\Render('app.html',
         'START_PT' => $START_PT,
         'START_DIR' => $START_DIR
       ),
+      'bio_map' => $bio_map,
       'lang_map' => $lang_map,
     )),
   )
 );
-
-exit;
 
 ?>

@@ -24,7 +24,7 @@
     return {
       // The following urls are relative to root directory
       mainConfigFile: 'js/app/main.js',
-      out: 'static/assets/app.js',
+      out: 'dist/assets/app.js',
 
       // Following are relative to the mainConfigFile
       name: 'app',

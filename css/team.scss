@@ -1,6 +1,10 @@
+@import 'lib/my-sass-core/core';
+@import 'CSS:lib/animate.css/animate';
 @import 'webscss/team/core';
 @import 'webscss/team/animate';
 @import 'webscss/team/zindex';
+
+@import 'directives/container';
 
 $teams_font: 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, sans-serif;
 
@@ -67,18 +71,6 @@ $teams_font: 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', He
   }
 }
 
-$site_width: 960px;
-
-#site_wrapper {
-  padding-top: 20px;
-  width: $site_width;
-  text-align: center;
-
-  * {
-    font-family: $teams_font;
-  }
-}
-
 .btn {
   @include blue_btn();
 
@@ -93,33 +85,33 @@ $site_width: 960px;
 
   &.right {
     right: 0;
-    padding: 8px 0 8px 15px;
+    //padding: 8px 0 8px 15px;
 
-    &.fwd_arrow {
-      &:after {
-        content: "\232A";
-        padding-left: 10px;
-      }
-    }
+    // &.fwd_arrow {
+    //   &:after {
+    //     content: "\232A";
+    //     padding-left: 10px;
+    //   }
+    // }
 
-    &.back_arrow {
-      &:after {
-        content: "\2329";
-        padding-right: 10px;
-      }
-    }
+    // &.back_arrow {
+    //   &:after {
+    //     content: "\2329";
+    //     padding-right: 10px;
+    //   }
+    // }
   }
 
   &.left {
     left: 0;
-    padding: 8px 15px 8px 0;
+    //padding: 8px 15px 8px 0;
 
-    &.back_arrow {
-      &:before {
-        content: "\2329";
-        padding-right: 10px;
-      }
-    }
+    // &.back_arrow {
+    //   &:before {
+    //     content: "\2329";
+    //     padding-right: 10px;
+    //   }
+    // }
   }
 }
 
@@ -128,7 +120,10 @@ $slide_duration: .5s;
 $flip_duration: 1s;
 
 .flipInY, .flipOutY {
-  @include add_vendors(animation-duration, $flip_duration, (webkit, moz, o, ''));
+  animation-duration: $flip_duration;
+  -webkit-animation-duration: $flip_duration;
+  -moz-animation-duration: $flip_duration;
+  -o-animation-duration: $flip_duration;
 }
 
 $main_img_width: 600px;
@@ -140,5 +135,5 @@ $portrait_padding: 5px;
 
 $default_opacity: .9;
 
-@import 'webscss/team/top_bar';
-@import 'webscss/team/main_section';
+@import 'top_bar';
+@import 'main_section';

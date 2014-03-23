@@ -1,0 +1,310 @@
+<!doctype html>
+<html>
+  <head>
+          <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans">
+          <link rel="stylesheet" href="assets/team.css">
+          <link rel="stylesheet" href="assets/app.css">
+        <title>Office Street View</title>
+  </head>
+  <body>
+      
+  <script type="text/ng-template" id="directives/container">
+    <div class="osv-container">
+
+    <div>
+    <div id="top_bar">
+      <div class="title">
+        Meet the Team
+      </div>
+      <div>
+        <div class="arrow_wrapper">
+          <div class="back arrow" ng-click="PortraitsBack()"
+              ng-show="ShowPortraitsBack()"></div>
+        </div>
+        <div id="portraits">
+          <div ng-style="{ 'margin-left': (portraits_margin|append_px) }"
+              class="people_wrapper">
+            <div class="person_wrapper"
+                osv-portrait
+                ng-style="{ left: (($index * portrait_width)|append_px) }"
+                ng-animate="{ enter: 'flipInY', leave: 'fade_out' }"
+                ng-repeat="person in FilterPeopleAndPrioritizeMeet() track by person.key">
+            </div>
+          </div>
+          <div ng-hide="FilterPeopleAndPrioritizeMeet().length > 0"
+              class="no_results"
+              ng-animate="{ show: 'fade-enter', hide: 'fade-leave' }">
+            No one matches your filter selections &#9785;.
+          </div>
+        </div>
+        <div class="arrow_wrapper">
+          <div class="fwd arrow" ng-click="PortraitsFwd()"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div id="main_section">
+      <div id="front_main" recompile-when="bio">
+        <div id="splash_screen" ng-class="{ open: splash_open }"
+            ng-click="CloseSplash()">
+          <div class="title">See what it's like to work at Room 77!</div>
+          <p>
+            Meet our talented group of employees.
+          </p>
+          <p>
+            Click on a photo or use the arrow keys to move through the
+            office.
+          </p>
+        </div>
+
+        <img osv-main-img="OnMainImgLoad" id="main_img" ng-src="[[ main_img ]]"
+            ng-init="Init()" ng-class="{ with_person: bio }">
+
+        <img id="backup_img" bindonce="backup_img" bo-src="backup_img">
+
+        <div id="header_wrapper" ng-class="{ open: !(bio || splash_open) }">
+          <div id="img_header">
+            <div class="search">
+              <input ng-model="qu.ery" placeholder="Search for a person"
+                  ng-focus="QueryFocus();CloseFilters()" ng-blur="QueryBlur()">
+              <div class="icon"></div>
+                          </div>
+            <div class="btn top right" ng-click="ToggleFiltersOpen()"
+                ng-class="{ fwd_arrow: !filters_open, back_arrow: filters_open}">
+              Filter
+            </div>
+          </div>
+
+          <div id="applied_filters">
+            <div ng-repeat="filter in applied_filters" bindonce
+                ng-animate="'fade'" ng-click="HaltFilter($index)">
+              <div>
+                <span bo-text="filter.name"></span>
+                <span class="close">x</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="quote" ng-show="bio.quote">
+          &ldquo;<span recompile-html>
+            <span bindonce bo-text="bio.quote"></span>
+          </span>&rdquo;
+        </div>
+
+        <div id="bio" recompile-html ng-class="{ open: bio }">
+          <div bindonce="bio">
+            <div class="btn top left back_arrow"
+                ng-click="Back()">Back</div>
+
+            <h2 bo-text="bio.name"></h2>
+            <h4 bo-text="bio.role"></h4>
+
+            <div bo-show="bio.eng.lang && bio.eng.editor" class="eng">
+              <strong>Favorite coding setup:</strong>
+              <span bo-text="bio.eng.lang"></span>
+              in
+              <span bo-text="bio.eng.editor"></span>
+            </div>
+
+            <div bo-show="bio.countries_url">
+              <h3>
+                <span>Countries visited:</span>
+                <span class="num_countries"
+                    bo-text="bio.countries.length"></span>
+              </h3>
+              <div id="countries_img_wrapper">
+                <img bo-src="bio.countries_url" alt="Countries visited">
+              </div>
+            </div>
+
+            <div id="languages" bo-if="bio.languages">
+              <h3>Languages Spoken:</h3>
+              <ul>
+                <li ng-repeat="lang in bio.languages" bindonce
+                    bo-text="lang|lang_display_name"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <table id="meet_table">
+                  <tr>
+                                    <td style="text-align: left;">
+                                                      <span ng-switch="!!meet.NW && FitsFilter(meet.NW)"
+                  ng-animate="'fade'">
+                <span ng-switch-when="true">
+                  <span recompile-when="meet.NW" recompile-html>
+                    <span bindonce>
+                      <span class="meet_text" nav-to-person="meet.NW"
+                          bo-text="meet.NW.short_name"></span>
+                      <span class="arrow">
+                        <span class="inner_arrow"></span>
+                        <span class="outer_arrow"></span>
+                      </span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+                          </td>
+                                    <td style="text-align: center;">
+                                                      <span ng-switch="!!meet.N && FitsFilter(meet.N)"
+                  ng-animate="'fade'">
+                <span ng-switch-when="true">
+                  <span recompile-when="meet.N" recompile-html>
+                    <span bindonce>
+                      <span class="meet_text" nav-to-person="meet.N"
+                          bo-text="meet.N.short_name"></span>
+                      <span class="arrow">
+                        <span class="inner_arrow"></span>
+                        <span class="outer_arrow"></span>
+                      </span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+                          </td>
+                                    <td style="text-align: right;">
+                                                      <span ng-switch="!!meet.NE && FitsFilter(meet.NE)"
+                  ng-animate="'fade'">
+                <span ng-switch-when="true">
+                  <span recompile-when="meet.NE" recompile-html>
+                    <span bindonce>
+                      <span class="meet_text" nav-to-person="meet.NE"
+                          bo-text="meet.NE.short_name"></span>
+                      <span class="arrow">
+                        <span class="inner_arrow"></span>
+                        <span class="outer_arrow"></span>
+                      </span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+                          </td>
+                    </tr>
+                  <tr>
+                                    <td style="text-align: left;">
+                                                      <span ng-switch="!!meet.W && FitsFilter(meet.W)"
+                  ng-animate="'fade'">
+                <span ng-switch-when="true">
+                  <span recompile-when="meet.W" recompile-html>
+                    <span bindonce>
+                      <span class="meet_text" nav-to-person="meet.W"
+                          bo-text="meet.W.short_name"></span>
+                      <span class="arrow">
+                        <span class="inner_arrow"></span>
+                        <span class="outer_arrow"></span>
+                      </span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+                          </td>
+                                    <td style="text-align: center;">
+                                                    </td>
+                                    <td style="text-align: right;">
+                                                      <span ng-switch="!!meet.E && FitsFilter(meet.E)"
+                  ng-animate="'fade'">
+                <span ng-switch-when="true">
+                  <span recompile-when="meet.E" recompile-html>
+                    <span bindonce>
+                      <span class="meet_text" nav-to-person="meet.E"
+                          bo-text="meet.E.short_name"></span>
+                      <span class="arrow">
+                        <span class="inner_arrow"></span>
+                        <span class="outer_arrow"></span>
+                      </span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+                          </td>
+                    </tr>
+                  <tr>
+                                    <td style="text-align: left;">
+                                                      <span ng-switch="!!meet.SW && FitsFilter(meet.SW)"
+                  ng-animate="'fade'">
+                <span ng-switch-when="true">
+                  <span recompile-when="meet.SW" recompile-html>
+                    <span bindonce>
+                      <span class="meet_text" nav-to-person="meet.SW"
+                          bo-text="meet.SW.short_name"></span>
+                      <span class="arrow">
+                        <span class="inner_arrow"></span>
+                        <span class="outer_arrow"></span>
+                      </span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+                          </td>
+                                    <td style="text-align: center;">
+                                                      <span ng-switch="!!meet.S && FitsFilter(meet.S)"
+                  ng-animate="'fade'">
+                <span ng-switch-when="true">
+                  <span recompile-when="meet.S" recompile-html>
+                    <span bindonce>
+                      <span class="meet_text" nav-to-person="meet.S"
+                          bo-text="meet.S.short_name"></span>
+                      <span class="arrow">
+                        <span class="inner_arrow"></span>
+                        <span class="outer_arrow"></span>
+                      </span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+                          </td>
+                                    <td style="text-align: right;">
+                                                      <span ng-switch="!!meet.SE && FitsFilter(meet.SE)"
+                  ng-animate="'fade'">
+                <span ng-switch-when="true">
+                  <span recompile-when="meet.SE" recompile-html>
+                    <span bindonce>
+                      <span class="meet_text" nav-to-person="meet.SE"
+                          bo-text="meet.SE.short_name"></span>
+                      <span class="arrow">
+                        <span class="inner_arrow"></span>
+                        <span class="outer_arrow"></span>
+                      </span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+                          </td>
+                    </tr>
+                </table>
+      </div>
+
+            <div id="behind_main">
+        <div id="filters" ng-class="{ open: filters_open }">
+          <div ng-repeat="filter in filters" bindonce
+              ng-class="{ applied: filter.applied }"
+              bo-text="filter.name" ng-click="ToggleFilter(filter)">
+          </div>
+        </div>
+      </div>
+    </div> 
+  </div>
+</div>
+  </script>
+  <script type="text/ng-template" id="directives/portrait">
+    <div class="person" ng-class="{ active: person.in_view }" bindonce="person"
+    nav-to-person="person">
+  <img bo-src="person.img">
+  <div bo-text="person.short_name"></div>
+  <div class="arrow" ng-show="person.in_view"></div>
+</div>
+  </script>
+
+<div osv-container></div>
+
+                <script type="text/javascript">
+        window.JS_VARS_FROM_SERVER = {"vars":{"filter_map":{"business":"Business Team","eng":"Engineering Team","mktg":"Marketing Team","product":"Product Team","alcohol":"Alcohol Connoisseur","baller":"Basketballer","music":"Musician","nature":"Nature Enthusiast","chef":"Chef"},"min_pt":[-1,0],"max_pt":[7,10],"loc_types":{"-1":{"10":"Uy"},"0":{"1":"loc","4":"loc","6":"loc","9":"loc","10":"Pr","0":"start"},"1":{"8":"Andy","5":"Ang","0":"Je","10":"Ni"},"2":{"3":"Ana","10":"Ia","0":"Je","7":"Vi"},"3":{"1":"loc","4":"loc","6":"loc","9":"loc","0":"Ka","10":"Ma"},"4":{"2":"Me","0":"Ro","10":"Su"},"5":{"5":"Am","8":"Ca","10":"Ji","3":"Sy"},"6":{"1":"loc","4":"loc","6":"loc","9":"loc","10":"Ho"},"7":{"10":"Ky"}},"START_PT":[0,0],"START_DIR":"N"},"bio_map":{"Ad":{"name":"Adrienne DiPalma","short_name":"Adrienne","pts":[],"role":"CSS Jedi","languages":["eng"],"countries":["MX","CA","IE","ES","PT","GB"],"eng":{"lang":"PHP","editor":"NetBeans"},"filters":["eng"],"quote":"Ugh, another merge conflict.","detailed_info":""},"Al":{"name":"Alexa Herasimchuk","short_name":"Alexa","pts":[],"role":"Design Intern","languages":["eng"],"countries":["MX","AW"],"eng":{"lang":"","editor":""},"filters":["product","baller"],"quote":"Gosh, everyone here sucks at basketball.","detailed_info":""},"Am":{"name":"Amber Terrell","short_name":"Amber","pts":[[5,5]],"role":"Manager of Customer Care and Partner Relations","languages":["eng"],"countries":["MX","PH"],"eng":{"lang":"","editor":""},"filters":["business","chef"],"quote":"","detailed_info":""},"Ana":{"name":"Anastassia Fink","short_name":"Anastassia","pts":[[2,3]],"role":"SEM Master","languages":["rus","eng","spa"],"countries":["CA","HR","FR","DE","GR","IL","IT","MX","RU","SU"],"eng":{"lang":"","editor":""},"filters":["mktg"],"quote":"","detailed_info":""},"Andrea":{"name":"Andrea Tacchetti","short_name":"Andrea","pts":[],"role":"Software Intern","languages":["ita","eng"],"countries":["IT"],"eng":{"lang":"","editor":""},"filters":["eng"],"quote":"","detailed_info":""},"Andrew":{"name":"Andrew Chen","short_name":"Andrew","pts":[],"role":"Product Manager \/ Software Engineer","languages":["eng"],"countries":["DE","FR","ES","NL","IT","VA","CN","SG","CA","MX","MC","MY"],"eng":{"lang":"??","editor":"Vim"},"filters":["baller","product"],"quote":"","detailed_info":""},"Andy":{"name":"Andy Kearney","short_name":"Andy","pts":[[1,8]],"role":"Software Engineer","languages":["eng"],"countries":["IT"],"eng":{"lang":"C#","editor":"Vim"},"filters":["eng","baller","alcohol"],"quote":"","detailed_info":""},"Ang":{"name":"Angela Tam","short_name":"Angela","pts":[[1,5]],"role":"Office Manager","languages":["eng","can","cmn"],"countries":["BS","CA","CN","HK","JP","MO","MX","TW"],"eng":{"lang":"","editor":""},"filters":["business","chef"],"quote":"","detailed_info":""},"Br":{"name":"Bryant Waters","short_name":"Bryant","pts":[],"role":"VP of Business Development","languages":["eng"],"countries":["DE","FR","CH","GB","NS","EL","BE","IT","CZ","IE","MC","VA","AT","CN","KR","JP","IN","SG","MY","DO","CA","MX","CR","KY","LI","TH"],"eng":{"lang":"","editor":""},"filters":["business","alcohol"],"quote":"","detailed_info":""},"Ca":{"name":"Calvin Yang","short_name":"Calvin","pts":[[5,8]],"role":"CTO","languages":["cmn","eng","fra"],"countries":["CN","RU","BY","HU","HR","VA","MC","FR","DE","GR","CA","KR","JP","BE","NL","CH","IT","GB","ES","AU","NZ"],"eng":{"lang":"C++","editor":"Emacs"},"filters":["eng"],"quote":"I would have finished the teams page in the first hackathon.","detailed_info":"At Calvin's wedding, his best man quipped during his toast that Calvin missed his calling as a travel consultant. While Calvin's real job has always been in computer science, he's nevertheless served as a de facto travel consultant for his friends, having visited more than a dozen countries across four continents. For over a decade, Calvin has had the fortune of working with great people in various areas of computer science: computer vision and image retrieval at Yale and MIT, music database analysis at Stanford, data mining at Microsoft, and image search at Google. After leaving Google, Calvin founded OpTrip (now part of Room 77), where his team built a next-generation travel planning engine -- a perfect combination of his passion in both travel and computer science."},"Ch":{"name":"Christine Chang","short_name":"Christine","pts":[],"role":"Financial Controller","languages":["eng"],"countries":[],"eng":{"lang":"","editor":""},"filters":["business"],"quote":"","detailed_info":""},"Dd":{"name":"Daniel Dobrott","short_name":"Danny","pts":[],"role":"Manager of Customer Service","languages":["eng"],"countries":["CA","FR","HK","IE","IT","MX","NL","ES","UK"],"eng":{"lang":"","editor":""},"filters":["business"],"quote":"","detailed_info":""},"Do":{"name":"Doug Aley","short_name":"Doug","pts":[],"role":"Product Manager","languages":["eng"],"countries":[],"eng":{"lang":"","editor":""},"filters":["product","alcohol","nature"],"quote":"","detailed_info":""},"Dr":{"name":"Drew Patterson","short_name":"Drew","pts":[],"role":"CEO","languages":["eng"],"countries":["DE","CH","FR","GB","ES","NL","IS","BE","CN","RU","KR","TR","JP","IN","GR","IT","HR","PT","CZ","SG","CA","MX","MA","EG","TZ","IL","CR","AR","BR","KE"],"eng":{"lang":"","editor":""},"filters":["baller","business","alcohol"],"quote":"","detailed_info":""},"Ho":{"name":"Holman Gao","short_name":"Holman","pts":[[6,10]],"role":"Software Engineer","languages":["eng","cmn","spa"],"countries":["CN","DO","UG","NL","CA","GT"],"eng":{"lang":"OCaml","editor":"Vim"},"filters":["eng","baller","music","nature"],"quote":"I like my box.","detailed_info":""},"Ia":{"name":"Ian Webster","short_name":"Ian","pts":[[2,10]],"role":"Software Engineer","languages":["eng","can","lat","swa"],"countries":["IS","HK","CR","FR","DE","JP","TC","NO","CA","BS"],"eng":{"lang":"javascript","editor":"Vim"},"filters":["eng","baller","music"],"quote":"Did someone say rap?  Drop me a beat.","detailed_info":""},"Je":{"name":"Jessica Skelton","short_name":"Jess","pts":[[1,0],[2,0]],"role":"Marketing Communications","languages":["eng","spa"],"countries":["FR","ES","GB","PT","MX","CA","PE","VG","VI"],"eng":{"lang":"","editor":""},"filters":["mktg","chef"],"quote":"Roger, stop being so inappropriate!","detailed_info":""},"Ji":{"name":"Jie Chen","short_name":"Jie","pts":[[5,10]],"role":"Software Engineer","languages":["cmn","eng","jpn"],"countries":["CN","JP"],"eng":{"lang":"??","editor":"Vim"},"filters":["eng","nature"],"quote":"That last interview candidate?  Reject.","detailed_info":""},"Ju":{"name":"Julius Elinson","short_name":"Julius","pts":[],"role":"Software Engineer","languages":["eng"],"countries":["CA","CL","EC","HU","AT","FR","ES","GI"],"eng":{"lang":"C++","editor":"Emacs"},"filters":["eng","nature"],"quote":"","detailed_info":""},"Ka":{"name":"Kaushal Kantawala","short_name":"Kaushal","pts":[[3,0]],"role":"Mobile Genius","languages":["eng"],"countries":["IN"],"eng":{"lang":"??","editor":"??"},"filters":["product","alcohol","baller"],"quote":"Is it time to drink in the office yet?","detailed_info":""},"Ky":{"name":"Kyle Konrad","short_name":"Kyle","pts":[[7,10]],"role":"Software Engineer","languages":["eng","spa"],"countries":["NO","FR","CA","MX","GB","BE","CH","DK","BZ","VE","IT","PA","BS","NL","GR"],"eng":{"lang":"Python","editor":"Emacs"},"filters":["eng","baller","music","chef","nature"],"quote":"Don't be a bitch.","detailed_info":""},"Ma":{"name":"Madeleine Nguyen","short_name":"Madeleine","pts":[[3,10]],"role":"QA","languages":["eng","vie"],"countries":["VN","DE"],"eng":{"lang":"??","editor":"??"},"filters":["eng","chef","nature"],"quote":"I look like this because I just went for a light 10 mile run.","detailed_info":""},"Me":{"name":"Melissa Beauchamp","short_name":"Melissa","pts":[[4,2]],"role":"VP of Partner Relations","languages":["eng"],"countries":["DE","FR","GB","ES","NL","NO","IT","IN","VN","SG","CA","MX","BS","PT","VA","KY","VG","VI","AS","AU","AT","KH","CK","FJ","FX","PF","TF","GI","ID","LA","MY","MN","NZ","PG","LC","WS","TH","TO","UK","VU","VN","PM"],"eng":{"lang":"","editor":""},"filters":["alcohol","business","chef"],"quote":"","detailed_info":""},"Mi":{"name":"Michael Chernyak","short_name":"Michael","pts":[],"role":"Criminal Mastermind in Residence","languages":["rus","eng","heb"],"countries":["AT","BE","CA","CH","CR","CY","DE","EG","FI","FR","GB","IL","JP","LT","MX","NL","RU","TR","UA"],"eng":{"lang":"Perl","editor":"Vim"},"filters":["eng"],"quote":"","detailed_info":""},"Ni":{"name":"Nicholas Edelman","short_name":"Nick","pts":[[1,10]],"role":"Software Engineer","languages":["eng","spa"],"countries":[],"eng":{"lang":"C++","editor":"Emacs"},"filters":["eng","baller","nature"],"quote":"","detailed_info":""},"Pe":{"name":"Pedro Silva","short_name":"Pedro","pts":[],"role":"Sr Product Marketing Manager","languages":["eng","por","spa"],"countries":["AD","AR","AU","BE","BZ","BA","BR","CA","HR","CN","CU","DK","EG","FI","FR","DE","GI","HK","IT","JP","LU","MX","MC","MA","NL","NZ","PE","PT","PR","WS","RS","ES","SE","CH","TR","GB","US"],"eng":{"lang":"","editor":""},"filters":["mktg"],"quote":"","detailed_info":""},"Pr":{"name":"Pramod Gupta","short_name":"Pramod","pts":[[0,10]],"role":"Software Engineer","languages":["eng"],"countries":[],"eng":{"lang":"C++","editor":"Eclipse"},"filters":["eng","nature","chef"],"quote":"","detailed_info":""},"Ro":{"name":"Roger Wong","short_name":"Roger","pts":[[4,0]],"role":"VP of Marketing and Product","languages":["eng","can"],"countries":[],"eng":{"lang":"","editor":""},"filters":["baller","product","alcohol","nature","chef"],"quote":"","detailed_info":""},"Su":{"name":"Sungsoon Cho","short_name":"Sungsoon","pts":[[4,10]],"role":"Software Engineer","languages":["kor","eng"],"countries":[],"eng":{"lang":"C++","editor":"Vim"},"filters":["eng","alcohol"],"quote":"Double whiskey, no rocks.","detailed_info":""},"Sy":{"name":"Syed Abbas","short_name":"Syed","pts":[[5,3]],"role":"Manager Production","languages":["eng","hin","per"],"countries":["IN","SG","IR","PH","UAE"],"eng":{"lang":"","editor":""},"filters":["mktg","nature"],"quote":"","detailed_info":""},"Uy":{"name":"Uygar Oztekin","short_name":"Uygar","pts":[[-1,10]],"role":"Software Engineer","languages":["tur","fra","eng"],"countries":["TR","FR","KG","KZ","HU","CY"],"eng":{"lang":"C++11","editor":"scite \/ vi*"},"filters":["eng","nature"],"quote":"","detailed_info":""},"Vi":{"name":"Vishal Kasera","short_name":"Vishal","pts":[[2,7]],"role":"Master of Deals","languages":["eng"],"countries":["IN"],"eng":{"lang":"??","editor":"??"},"filters":["eng"],"quote":"","detailed_info":""},"Yu":{"name":"Yu-chi Kuo","short_name":"Yu-chi","pts":[],"role":"Software Engineer Intern","languages":["cmn","eng"],"countries":["TW","CN","JP","KR","SG","HK"],"eng":{"lang":"Python","editor":"Vim"},"filters":["eng","baller"],"quote":"","detailed_info":""}},"lang_map":{"eng":"English","spa":"Spanish","cmn":"Mandarin","jpn":"Japanese","fra":"French","vie":"Vietnamese","kor":"Korean","rus":"Russian","can":"Cantonese","tur":"Turkish","per":"Persian","heb":"Hebrew","hin":"Hindi"}};
+      </script>
+          
+          <script src="assets/app.js"></script>
+      </body>
+</html>

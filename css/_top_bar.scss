@@ -1,5 +1,5 @@
 #top_bar {
-  //@include shadow($common_shadow);
+  //@include box-shadow($common_shadow);
 
   width: $main_img_width + 80px;
   display: inline-block;
@@ -42,7 +42,7 @@
 
 #portraits {
   $portrait_img_height: $portrait_img_width / 3 * 4;
-  $portrait_total_height: $portrait_img_height + 10px;
+  $portrait_total_height: $portrait_img_height + 30px;
   $arrow_height: 20px;
 
   width: $main_img_width + 7px;
