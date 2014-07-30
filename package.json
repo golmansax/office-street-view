@@ -1,9 +1,9 @@
 {
   "name": "office-street-view",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "TODO"
+    "url": "https://github.com/golmansax/office-street-view"
   },
   "devDependencies": {
     "glob": "latest",
