@@ -1,0 +1,6 @@
+before_script:
+  - bower install
+  - npm install
+  - gem install compass sass-css-importer
+script:
+  - grunt test
