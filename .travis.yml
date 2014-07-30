@@ -1,6 +1,8 @@
 before_script:
-  - bower install
   - npm install
+  - npm install bower
+  - bower install
   - gem install compass sass-css-importer
+  - apt-get install php5 php5-cgi php5-json
 script:
   - grunt test
