@@ -22,7 +22,7 @@
     "angular": "latest",
     "angular-mocks": "latest",
     "angular-bindonce": "latest",
-    "angular-recompile": "golmansax/angular-recompile",
+    "angular-recompile": "latest",
     "requirejs": "latest",
     "requirejs-domready": "latest",
     "routie": "latest"
