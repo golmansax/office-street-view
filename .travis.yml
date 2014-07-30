@@ -1,9 +1,10 @@
-before_script:
-  - npm install
-  - npm install bower
-  - bower install
-  - gem install compass sass-css-importer --pre
+before_install:
   - sudo apt-get update -qq
   - sudo apt-get install php5 php5-cgi php5-json -qq
+  - npm install -g bower grunt-cli
+  - gem install compass sass-css-importer --pre
+install:
+  - npm install
+  - bower install
 script:
   - grunt test

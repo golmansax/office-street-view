@@ -9,7 +9,7 @@
     "glob": "latest",
     "grunt": "latest",
     "grunt-contrib-compass": "latest",
-    "grunt-contrib-jasmine": "~0.5",
+    "grunt-contrib-jasmine": "0.5.2",
     "grunt-contrib-jshint": "latest",
     "grunt-contrib-requirejs": "latest",
     "grunt-php2html": "latest",
