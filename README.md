@@ -1,5 +1,8 @@
 Office Street View
 ==================
+
+[![Build Status](https://travis-ci.org/golmansax/office-street-view.svg?branch=master)](https://travis-ci.org/golmansax/office-street-view)
+
 A cool company team-page that lets you explore the office and the awesome people that work there.  Created in a Room 77 hackathon.
 
 Run `grunt server:dev` to get a local version running on port 8000.
