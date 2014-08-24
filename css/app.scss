@@ -1,6 +1,10 @@
 // Basic Sass skeleton
 @import 'lib/my-sass-core/skeletons/basic';
 
+h1 {
+  font-size: 32px;
+}
+
 li {
   display: inline-block;
 }

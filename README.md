@@ -12,7 +12,7 @@ Developing on this repo
 ---
 * Run `grunt` to compile the source files.  You will need to run `bower update`
 and `sudo npm install`
-* You will need `php5`, `php5-cgi`, `php5-json` packages installed
+* You will need `php5`, `php5-cgi`, `php5-json`, `php-cli` packages installed
 * You will need `compass` and `sass-css-importer` Gems installed
 
 **Built with:** PHP5, AngularJS, Compass (Sass), Grunt, Bower
